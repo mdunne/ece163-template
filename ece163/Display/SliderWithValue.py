@@ -26,6 +26,10 @@ class SliderWithValue(QWidget):
 		self.max = maxValue
 		self.name = name
 		self.funcPointer = onChangePointer
+		if startValue < self.min:
+			startValue = self.min
+		if startValue > self.max:
+			startValue = self.max
 		self.curValue = startValue
 		self.ratio = (self.max-self.min)/(self.internalMaxValue-self.internalMinValue)
 		# print(self.ratio)

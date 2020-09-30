@@ -10,6 +10,8 @@ from ..Containers import States
 import numpy
 import math
 import traceback
+import os
+import datetime
 
 simulationThreadRate = 20
 
@@ -19,8 +21,13 @@ class aboutTab(QWidget):
 
 		usedLayout = QVBoxLayout()
 		self.setLayout(usedLayout)
-
-		aboutText = QLabel("Welcome to the ece163 gui. More text needs to be added in a more sane fashion here")
+		textLocation = os.path.join(sys.path[0], 'about.html')
+		try:
+			with open(textLocation) as f:
+				aboutText = f.read()
+		except FileNotFoundError:
+			aboutText = "No About.html file found"
+		aboutText = QLabel(aboutText)
 		aboutText.setWordWrap(True)
 		usedLayout.addWidget(aboutText)
 		usedLayout.addStretch()
@@ -34,13 +41,14 @@ class exceptionTab(QWidget):
 
 		self.usedLayout.addWidget(QLabel("Last Exception simulation had will appear here"))
 
-		self.exceptionText = QLabel("None")
+		self.exceptionText = QPlainTextEdit("None")
+		self.exceptionText.setReadOnly(True)
 		self.usedLayout.addWidget(self.exceptionText)
-		self.usedLayout.addStretch()
 		return
 
 	def setExceptionText(self, newText):
-		self.exceptionText.setText(newText)
+		self.exceptionText.clear()
+		self.exceptionText.appendPlainText(newText)
 
 class baseInterface(QMainWindow):
 	updateVehiclePositionSignal = pyqtSignal(list)  # signal for redrawing the vehicle
@@ -57,15 +65,19 @@ class baseInterface(QMainWindow):
 		super().__init__(parent)
 
 		# before we set up the gui we need a few data types to store
-
 		self.simulationPaused = True
 
 		self.curSpeedRate = 1
 		self.newSpeedRate = 1
 		self.threadTick = 0
+		self.curMultiTickRate = 1
+		self.newMultiTickRate = 1
 
 		# we need a set of callbacks for when the state changes and the various gui elements need updating
 		self.stateUpdateDefList = list()
+
+		# after updates these are ones that take no arguments but same idea
+		self.afterUpdateDefList = list()
 
 		# we need to start the thread now, it just runs
 		self.simulationTimedThread = QTimer()
@@ -93,6 +105,8 @@ class baseInterface(QMainWindow):
 		self.vehicleDisplaySplitter.setStretchFactor(0, 1)
 		self.inputLayout = QVBoxLayout()
 		self.inputBaseWidget.setLayout(self.inputLayout)
+		self.inputTabs = QTabWidget()
+		self.inputLayout.addWidget(self.inputTabs)
 		# self.inputLayout.addWidget(QLabel("Input Here"))
 
 		self.outPutWidget = QWidget()
@@ -147,20 +161,24 @@ class baseInterface(QMainWindow):
 		self.simulationControlsBox.addLayout(self.simulationSpeedsBox)
 		self.simulationSpeedsGroup = QButtonGroup()
 
-		for ratio in [20, 8, 4, 2, 1]:
+		for ratio in [20, 8, 4, 2, 1, 1/2, 1/4, 1/8]:
 			newRatio = 1/(simulationThreadRate/(simulationThreadRate/ratio))
 			newRadio = QRadioButton("{}x".format(newRatio))
 			newRadio.threadRate = ratio
 			self.simulationSpeedsBox.addWidget(newRadio)
 			self.simulationSpeedsGroup.addButton(newRadio)
-		self.simulationSpeedsGroup.buttons()[-1].setChecked(True)
+		self.simulationSpeedsGroup.buttons()[-4].setChecked(True)
 		self.simulationSpeedsGroup.buttonToggled.connect(self.speedChangedResponse)
 
+		self.currentTime = 0
+		self.simulationControlsBox.addWidget(QLabel("Current Time: "))
+		self.currentTimeLabel = QLabel(str(datetime.timedelta(seconds=self.currentTime)))
+		self.simulationControlsBox.addWidget(self.currentTimeLabel)
 		self.simulationControlsBox.addStretch()
 
 		self.mainLayout.addStretch()
 
-		self.updateGuiStateElements()
+		self.afterUpdateActions()
 		return
 
 	def runSimulation(self):
@@ -169,22 +187,36 @@ class baseInterface(QMainWindow):
 		"""
 		if self.threadTick % self.curSpeedRate == 0:
 			try:
-				self.runUpdate()
-				self.runUpdate()	# Only updating the screen at half of the integration rate
+				for i in range(self.curMultiTickRate):
+					self.runUpdate()
+					self.runUpdate()  # Only updating the screen at half of the integration rate
 			except Exception as e:
 				self.exceptionTab.setExceptionText(traceback.format_exc())
 				self.outPutTabs.setCurrentIndex(self.exceptionTabIndex)
 				# traceback.print_exc()
 				self.PauseSimulation()
-			self.updateGuiStateElements()
+			self.afterUpdateActions()
+			try:
+				self.currentTime = self.simulateInstance.time
+				self.currentTimeLabel.setText(str(datetime.timedelta(seconds=self.currentTime)))
+			except AttributeError:
+				pass
 			self.curSpeedRate = self.newSpeedRate
+			self.curMultiTickRate = self.newMultiTickRate
 		self.threadTick += 1
 		return
 
 	def speedChangedResponse(self, checked):
 		if checked.isChecked():
-			self.newSpeedRate = checked.threadRate
+			if checked.threadRate >= 1:
+				self.newSpeedRate = checked.threadRate
+				self.newMultiTickRate = 1
+			else:
+				self.newSpeedRate = 1
+				self.newMultiTickRate = int(1/checked.threadRate)
+				print(self.newMultiTickRate)
 		return
+
 
 	def PlaySimulation(self):
 		"""
@@ -216,8 +248,11 @@ class baseInterface(QMainWindow):
 		self.pauseButton.setDisabled(True)
 		self.simulationPaused = True
 		self.simulationTimedThread.stop()
+		self.vehicleInstance.reset()
 		self.resetSimulationActions()
-		self.updateGuiStateElements()
+		# self.updateGuiStateElements()
+		self.currentTime = 0
+		self.currentTimeLabel.setText(str(datetime.timedelta(seconds=self.currentTime)))
 		print('reset')
 		return
 
@@ -227,13 +262,15 @@ class baseInterface(QMainWindow):
 		"""
 		return
 
-	def updateGuiStateElements(self):
+	def afterUpdateActions(self):
 		"""
 		Internal method to run all the state updates with gui elements, generally not called directly.
 		"""
 		curState = self.getVehicleState()
 		for updater in self.stateUpdateDefList:
 			updater(curState)
+		for updater in self.afterUpdateDefList:
+			updater()
 		return
 
 	def runUpdate(self):

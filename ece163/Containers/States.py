@@ -1,4 +1,5 @@
 from ..Utilities import Rotations
+from ..Utilities import MatrixMath
 import math
 
 
@@ -46,6 +47,8 @@ class vehicleState:
         self.Va = math.hypot(self.u, self.v, self.w)    # Airspeed
         self.alpha = math.atan2(self.w, self.u)         # angle of attack
         self.beta = math.atan2(self.v, self.u)          # Sideslip Angle
+        pdotned = MatrixMath.matrixMultiply(MatrixMath.matrixTranspose(self.R),[[self.u],[self.v],[self.w]])
+        self.chi = math.atan2(pdotned[1][0],pdotned[0][0])
         return
 
     def __repr__(self):
@@ -76,6 +79,9 @@ class windState:
         :param Wn: Constant wind velocity in inertial North direction [m/s]
         :param We: Constant wind velocity in inertial East direction [m/s]
         :param Wd: Constant wind velocity in inertial Down direction [m/s]
+        :param Wu: Gust wind velocity in body-x direction [m/s]
+        :param Wv: Gust wind velocity in body-y direction [m/s]
+        :param Ww: Gust wind velocity in body-z direction [m/s]
         """
         self.Wn = Wn
         self.We = We

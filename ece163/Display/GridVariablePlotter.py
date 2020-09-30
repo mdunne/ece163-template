@@ -57,6 +57,8 @@ class GridVariablePlotter(QWidget):
 					curLegend = useLegends[curIndex]
 				except IndexError:
 					curLegend = False
+				except TypeError:
+					curLegend = useLegends
 				# print(curLegend)
 				newVariablePlotter = variablePlotter.variablePlotter(curNames, curTitle, curXLabel, curYLabel, curLegend)
 				self.variablePlotters.append(newVariablePlotter)

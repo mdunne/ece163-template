@@ -11,6 +11,13 @@ class forcesMoments:
 		"""
 		Defines the forces [N] and moments [N-m] struct such that this can be passed around to the various functions that need to
 		use them. Forces and moments are defined in the body-frame and assumed to be located at the center of mass.
+
+		:param Fx: sum of forces in body-x direction [N]
+		:param Fy: sum of forces in body-y direction [N]
+		:param Fz: sum of forces in body-z direction [N]
+		:param Mx: sum of moments about body-x direction [N-m]
+		:param My: sum of moments about body-y direction [N-m]
+		:param Mz: sum of moments about body-z direction [N-m]
 		"""
 		self.Fx = Fx
 		self.Fy = Fy
@@ -36,7 +43,7 @@ class forcesMoments:
 
 
 class controlInputs:
-	def __init__(self, Throttle=0.0, Aileron=0.0, Elevator=0.0, Rudder=0.0):
+	def __init__(self, Throttle=0.5, Aileron=0.0, Elevator=0.0, Rudder=0.0):
 		"""
 		Defines the control inputs which are composed of throttle, ailerons, elevator, and rudder. Note that while the
 		throttle is a PWM signal, the remaining ones are angles (in radians). These are all defined in body-frame

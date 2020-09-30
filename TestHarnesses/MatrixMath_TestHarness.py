@@ -60,7 +60,7 @@ def printTestBlockResult(function, testsPassed, testCount):
 	print("{}/{} tests passed for {}{}".format(testsPassed, testCount, function.__name__, addendum))
 
 def printTestFailure(function, inputs, outputs, expectedoutputs):
-	print("Test Failed for {}. Please find repr version of the inputs below for testing".format(function.__name__))
+	print("Test Failed for {}. Please find the corresponding inputs and expected output(s) below for testing".format(function.__name__))
 	print("Inputs: {}".format(repr(inputs)))
 	print("Outputs: {}".format(repr(outputs)))
 	print("Expected Outputs: {}".format(repr(expectedoutputs)))
@@ -75,7 +75,7 @@ arguments = parser.parse_args()
 picklePath = arguments.picklePath
 inContinueMode = arguments.continueMode
 
-print("Beginning Test Harness for Rotations using file {}".format(picklePath))
+print("Beginning Test Harness for Matirx Math Library using file {}".format(picklePath))
 try:
 	with open(picklePath, 'rb') as f:
 		allTests = pickle.load(f)

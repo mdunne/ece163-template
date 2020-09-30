@@ -11,6 +11,7 @@ import ece163.Display.GridVariablePlotter
 import ece163.Display.SliderWithValue
 import ece163.Simulation.Chapter4Simulate
 import ece163.Display.DataExport
+import ece163.Display.WindControl as WindControl
 
 stateNamesofInterest = ['pn', 'pe', 'pd', 'yaw', 'pitch', 'roll', 'u', 'v', 'w', 'p', 'q', 'r', 'alpha', 'beta']
 systemInputs = [('Throttle', 0, 1, 0),
@@ -39,11 +40,19 @@ class Chapter4(baseInterface.baseInterface):
 		self.exportWidget = ece163.Display.DataExport.DataExport(self.simulateInstance,'Chapter4')
 		self.outPutTabs.addTab(self.exportWidget, "Export Data")
 
+		self.inputControlsWidget = QWidget()
+		gridSquish = QVBoxLayout()
 		self.inputGrid = QGridLayout()
-		self.inputLayout.addLayout(self.inputGrid)
+		gridSquish.addLayout(self.inputGrid)
+		gridSquish.addStretch()
+		self.inputControlsWidget.setLayout(gridSquish)
+		self.inputTabs.addTab(self.inputControlsWidget, "Control Inputs")
+		# self.inputLayout.addLayout(self.inputGrid)
+		self.windControl = WindControl.WindControl(self.simulateInstance)
+		self.inputTabs.addTab(self.windControl, WindControl.widgetName)
 
 		resetSlidersButton = QPushButton("Reset Sliders")
-		self.inputLayout.addWidget(resetSlidersButton)
+		gridSquish.addWidget(resetSlidersButton)
 		resetSlidersButton.clicked.connect(self.resetSliders)
 
 		self.inputLayout.addStretch()
@@ -104,6 +113,7 @@ class Chapter4(baseInterface.baseInterface):
 	def resetSimulationActions(self):
 		self.simulateInstance.reset()
 		self.stateGrid.clearDataPointsAll()
+		self.vehicleInstance.reset(self.simulateInstance.underlyingModel.getVehicleState())
 
 sys._excepthook = sys.excepthook
 

@@ -21,7 +21,7 @@ class testInterface(baseInterface.baseInterface):
 		self.stateGrid = ece163.Display.GridVariablePlotter.GridVariablePlotter(2, 3, [[x] for x in stateNamesofInterest], titles=stateNamesofInterest)
 
 		self.outPutTabs.addTab(self.stateGrid, "States")
-		self.outPutTabs.setCurrentIndex(1)
+		self.outPutTabs.setCurrentIndex(2)
 		self.stateUpdateDefList.append(self.updateStatePlots)
 
 		self.inputGrid = QGridLayout()
@@ -45,6 +45,8 @@ class testInterface(baseInterface.baseInterface):
 			self.inputGrid.addWidget(newSlider, row, col)
 
 		self.playButton.setDisabled(True)
+		self.showMaximized()
+		# self.vehicleInstance.leavePlaneTrail = False
 
 		return
 

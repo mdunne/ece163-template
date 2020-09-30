@@ -1,5 +1,6 @@
 from . import Simulate
 from ..Modeling import VehicleAerodynamicsModel
+from ..Constants import VehiclePhysicalConstants
 
 class Chapter4Simulate(Simulate.Simulate):
 	def __init__(self):
@@ -19,11 +20,12 @@ class Chapter4Simulate(Simulate.Simulate):
 		return self.underlyingModel.getVehicleState()
 
 	def takeStep(self, controlInput):
-		self.time += self.underlyingModel.vehicleDynamics.dT
+		self.time += VehiclePhysicalConstants.dT
 		self.underlyingModel.Update(controlInput)
 		self.recordData([controlInput.Throttle, controlInput.Aileron, controlInput.Elevator, controlInput.Rudder])
 		return
 
 	def reset(self):
+		self.time = 0
 		self.underlyingModel.reset()
 		self.takenData.clear()
