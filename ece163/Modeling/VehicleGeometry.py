@@ -1,8 +1,7 @@
-import pyqtgraph.opengl
-import numpy
 from ..Utilities import MatrixMath
 from ..Utilities import Rotations
-import math
+from ..Constants import VehiclePhysicalConstants as VPC
+
 
 baseUnit = 1.0
 

@@ -1,5 +1,5 @@
 """Matrix Library in Native Python, using lists of lists as a row-major representation of matrices.
-   That is: [[1,2,3],[4,5,6]] is a 2x3 matrix and they are indexed from [0]. Thus A[1][2] is 3."""
+   That is: [[1,2,3],[4,5,6]] is a 2x3 matrix and they are indexed from [0]. Thus A[1][2] is 6, and A[0][1] is 2."""
 
 def matrixMultiply(A,B):
     """

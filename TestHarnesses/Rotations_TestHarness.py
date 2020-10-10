@@ -162,6 +162,6 @@ if testsPassed == len(curTestBlock):
 
 ###############################################################################
 if testBlocksPassed == len(allTests):
-    print("All tests Passed for Matrix Math")
+    print("All tests Passed for Rotations")
 else:
-    print("{}/{} tests blocks passed for Matrix Math".format(testBlocksPassed, len(allTests)))
+    print("{}/{} tests blocks passed for Rotations".format(testBlocksPassed, len(allTests)))
