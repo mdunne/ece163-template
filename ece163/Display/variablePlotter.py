@@ -2,9 +2,8 @@
 	This module provides a wrapper for the pyqtgraph plotwidget and allowing for a simplified thread safe interface. After
 	initialziation the normal usage only involves invoking :func:`addDataPoint` to add data to a plot.
 """
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+import PyQt5.QtCore as QtCore
+import PyQt5.QtWidgets as QtWidgets
 import pyqtgraph
 import sys
 
@@ -14,7 +13,7 @@ class variablePlotter(pyqtgraph.PlotWidget):
 		Class to handle a single plot with an arbitrary number of lines. After initialization the normal usage only
 		involves invoking :func:`addDataPoint` to add data to a plot.
 	"""
-	newDataSignal = pyqtSignal(list, object)
+	newDataSignal = QtCore.pyqtSignal(list, object)
 	def __init__(self, plotNames, title=None, xLabel=None, yLabel=None, useLegend=True , parent=None):
 		"""
 		Creates a new variablePlotter. Only required item is a list containing names for each plot.
@@ -78,18 +77,18 @@ class variablePlotter(pyqtgraph.PlotWidget):
 			# print(dataPoint)
 
 
-if __name__ == "__main__":
+if QtCore.__name__ == "__main__":
 	import math
-	class testDialog(QDialog):
+	class testDialog(QtWidgets.QDialog):
 		def __init__(self, parent=None):
 			super().__init__(parent)
 
-			self.usedLayout = QVBoxLayout()
+			self.usedLayout = QtWidgets.QVBoxLayout()
 			self.setLayout(self.usedLayout)
 
 			self.timeStep = 0
 
-			plotBox = QHBoxLayout()
+			plotBox = QtWidgets.QHBoxLayout()
 			self.usedLayout.addLayout(plotBox)
 
 			self.firstPlot = variablePlotter(['s_s', 'y'], 'Hi_s', 'y', 't')
@@ -102,16 +101,16 @@ if __name__ == "__main__":
 			self.thirdPlot = variablePlotter(['sine', 'cos'])
 			plotBox.addWidget(self.thirdPlot)
 
-			self.firstSlider = QSlider(Qt.Horizontal)
+			self.firstSlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
 			self.usedLayout.addWidget(self.firstSlider)
 			self.firstSlider.valueChanged.connect(self.updatePlots)
 			self.firstSlider.setFocus()
 
-			self.secondSlider = QSlider(Qt.Horizontal)
+			self.secondSlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
 			self.usedLayout.addWidget(self.secondSlider)
 			self.secondSlider.valueChanged.connect(self.updatePlots)
 
-			clearButton = QPushButton("Clear Trig Plot")
+			clearButton = QtWidgets.QPushButton("Clear Trig Plot")
 			self.usedLayout.addWidget(clearButton)
 			clearButton.clicked.connect(self.clearTrigPlot)
 
@@ -153,7 +152,7 @@ if __name__ == "__main__":
 
 
 
-	qtApp = QApplication(sys.argv)
+	qtApp = QtWidgets.QApplication(sys.argv)
 	displaySomePlots = testDialog()
 	displaySomePlots.show()
 	qtApp.exec()

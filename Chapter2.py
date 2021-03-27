@@ -1,8 +1,8 @@
 import math
 import sys
 
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+# import PyQt5.QtCore as QtCore
+import PyQt5.QtWidgets as QtWidgets
 
 import ece163.Display.baseInterface as baseInterface
 import ece163.Containers.States as vehicleState
@@ -24,7 +24,7 @@ class testInterface(baseInterface.baseInterface):
 		self.outPutTabs.setCurrentIndex(2)
 		self.stateUpdateDefList.append(self.updateStatePlots)
 
-		self.inputGrid = QGridLayout()
+		self.inputGrid = QtWidgets.QGridLayout()
 		self.inputLayout.addLayout(self.inputGrid)
 		self.inputLayout.addStretch()
 		self.inputSliders = list()
@@ -85,12 +85,7 @@ def my_exception_hook(exctype, value, tracevalue):
 	# Print the error and traceback
 	import traceback
 	with open("LastCrash.txt", 'w') as f:
-		# f.write(repr(exctype))
-		# f.write('\n')
-		# f.write(repr(value))
-		# f.write('\n')
 		traceback.print_exception(exctype, value, tracevalue, file=f)
-		# traceback.print_tb(tracevalue, file=f)
 	print(exctype, value, tracevalue)
 	# Call the normal Exception hook after
 	sys._excepthook(exctype, value, tracevalue)
@@ -101,7 +96,7 @@ sys.excepthook = my_exception_hook
 
 
 
-qtApp = QApplication(sys.argv)
+qtApp = QtWidgets.QApplication(sys.argv)
 ourWindow = testInterface()
 ourWindow.show()
 qtApp.exec()

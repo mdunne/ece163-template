@@ -3,12 +3,14 @@ from ..Controls import VehicleClosedLoopControl
 from ..Containers.Controls import referenceCommands
 from ece163.Controls.VehicleTrim import VehicleTrim
 from ..Constants import VehiclePhysicalConstants
+from ..Sensors import SensorsModel
 
-class Chapter6Simulate(Simulate.Simulate):
+class Chapter7Simulate(Simulate.Simulate):
 	def __init__(self):
 		super().__init__()
 		self.inputNames.extend(['commandedCourse', 'commandedAltitude', 'commandedAirspeed'])
 		self.underlyingModel = VehicleClosedLoopControl.VehicleClosedLoopControl()
+		self.sensorModel = SensorsModel.SensorsModel(self.underlyingModel.getVehicleAerodynamicsModel())
 
 		# self.variableList.append((self.underlyingModel.getForcesMoments, 'ForceMoments',
 		# 							['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']))
@@ -27,6 +29,7 @@ class Chapter6Simulate(Simulate.Simulate):
 		if referenceInput is None:
 			referenceInput = self.referenceInput
 		self.underlyingModel.Update(referenceInput)
+		self.sensorModel.update()
 		self.recordData([referenceInput.commandedCourse, referenceInput.commandedAltitude, referenceInput.commandedAirspeed])
 		return
 

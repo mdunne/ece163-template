@@ -6,6 +6,8 @@ classes that are internal states tracked within the simulator.
 
 import math
 
+testingAbs_tol = 1e-6
+
 class forcesMoments:
 	def __init__(self, Fx=0.0, Fy=0.0, Fz=0.0, Mx=0.0, My=0.0, Mz=0.0):
 		"""
@@ -33,7 +35,7 @@ class forcesMoments:
 	def __eq__(self, other):
 		if isinstance(other, type(self)):
 			if not all(
-					[math.isclose(getattr(self, member), getattr(other, member)) for member in ['Fx', 'Fy', 'Fz',
+					[math.isclose(getattr(self, member), getattr(other, member), abs_tol=testingAbs_tol) for member in ['Fx', 'Fy', 'Fz',
 																								'Mx', 'My', 'Mz']]):
 				return False
 			else:

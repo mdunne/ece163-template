@@ -1,13 +1,13 @@
 """
 Simple convenience widget allowing for a double input box with ranges
 """
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+
+import PyQt5.QtGui as QtGui
+import PyQt5.QtWidgets as QtWidgets
 
 import math
 
-class doubleInputWithLabel(QWidget):
+class doubleInputWithLabel(QtWidgets.QWidget):
 	def __init__(self, name, startValue= 0.0, minValue=-math.inf, maxValue=math.inf, onChangePointer=None, parent=None):
 		"""
 		this widget holds a single double value and label with a validator locked to the range desired.
@@ -25,12 +25,12 @@ class doubleInputWithLabel(QWidget):
 		self.funcPointer = onChangePointer
 		self.curValue = startValue
 
-		self.usedLayout = QHBoxLayout()
+		self.usedLayout = QtWidgets.QHBoxLayout()
 		self.setLayout(self.usedLayout)
-		self.usedLayout.addWidget(QLabel("{}".format(name)))
+		self.usedLayout.addWidget(QtWidgets.QLabel("{}".format(name)))
 
-		self.textEdit = QLineEdit()
-		self.doubleValidate = QDoubleValidator()
+		self.textEdit = QtWidgets.QLineEdit()
+		self.doubleValidate = QtGui.QDoubleValidator()
 		self.doubleValidate.setBottom(minValue)
 		self.doubleValidate.setTop(maxValue)
 		self.textEdit.setValidator(self.doubleValidate)

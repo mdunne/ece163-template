@@ -8,8 +8,8 @@ class Chapter4Simulate(Simulate.Simulate):
 		self.inputNames.extend(['Throttle', 'Aileron', 'Elevator', 'Rudder'])
 		self.underlyingModel = VehicleAerodynamicsModel.VehicleAerodynamicsModel()
 
-		self.variableList.append((self.underlyingModel.getForcesMoments, 'ForceMoments',
-									['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']))
+		# self.variableList.append((self.underlyingModel.getForcesMoments, 'ForceMoments',
+		# 							['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']))
 
 		self.variableList.append((self.underlyingModel.getVehicleState, 'state',
 									['pn', 'pe', 'pd', 'yaw', 'pitch', 'roll', 'u', 'v', 'w', 'p', 'q', 'r', 'Va', 'alpha', 'beta']))

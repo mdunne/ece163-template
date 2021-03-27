@@ -198,10 +198,10 @@ class VehicleTrim():
 		"""
 		# objective function to be minimized
 		self.MapArraytoClass(x)
-		self.VehicleTrimModel.updateForces(self.VehicleTrimModel.vehicleDynamics.state,
+		Faero = self.VehicleTrimModel.updateForces(self.VehicleTrimModel.vehicleDynamics.state,
 										   self.VehicleTrimModel.windModel.Wind,
 										   self.ControlTrim)
-		self.VehicleTrimModel.vehicleDynamics.dot = self.VehicleTrimModel.vehicleDynamics.derivative(self.VehicleTrimModel.vehicleDynamics.state,																									 self.VehicleTrimModel.Faero)
+		self.VehicleTrimModel.vehicleDynamics.dot = self.VehicleTrimModel.vehicleDynamics.derivative(self.VehicleTrimModel.vehicleDynamics.state, Faero)
 		xdotstar_pd = -Vastar * math.sin(Gammastar)
 		xdotstar_yaw = Vastar * Kappastar * math.cos(Gammastar)
 		J = math.hypot(self.VehicleTrimModel.vehicleDynamics.dot.pd - xdotstar_pd,
@@ -290,13 +290,13 @@ class VehicleTrim():
 
 		p0 = points[0]
 
-		points = MatrixMath.matrixOffset(points, self.VehicleTrimModel.vehicleDynamics.state.pn - p0[0],
+		points = MatrixMath.offset(points, self.VehicleTrimModel.vehicleDynamics.state.pn - p0[0],
 										 self.VehicleTrimModel.vehicleDynamics.state.pe - p0[1],
 										 self.VehicleTrimModel.vehicleDynamics.state.pd - p0[2])
 		cos_psi = math.cos(self.VehicleTrimModel.vehicleDynamics.state.yaw)
 		sin_psi = math.sin(self.VehicleTrimModel.vehicleDynamics.state.yaw)
 		R_psi = [[cos_psi, sin_psi, 0],[-sin_psi, cos_psi, 0],[0, 0, 1]]
-		points = MatrixMath.matrixMultiply(points,R_psi)
+		points = MatrixMath.multiply(points,R_psi)
 		points = Rotations.ned2enu(points)
 		return points
 
@@ -377,7 +377,7 @@ class VehicleTrim():
 		errorState.r = state.r - self.VehicleTrimModel.vehicleDynamics.state.r
 		errorState.alpha = state.alpha - self.VehicleTrimModel.vehicleDynamics.state.alpha
 		errorState.beta = state.beta - self.VehicleTrimModel.vehicleDynamics.state.beta
-		errorState.R = MatrixMath.matrixSubtract(state.R, self.VehicleTrimModel.vehicleDynamics.state.R)
+		errorState.R = MatrixMath.subtract(state.R, self.VehicleTrimModel.vehicleDynamics.state.R)
 
 		return errorState
 

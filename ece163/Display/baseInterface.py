@@ -1,13 +1,8 @@
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtOpenGL import *
+import PyQt5.QtCore as QtCore
+import PyQt5.QtWidgets as QtWidgets
 import sys
-import PyQt5
-import pyqtgraph.opengl
 from . import vehicleDisplay
 from ..Containers import States
-import numpy
 import math
 import traceback
 import os
@@ -15,11 +10,11 @@ import datetime
 
 simulationThreadRate = 20
 
-class aboutTab(QWidget):
+class aboutTab(QtWidgets.QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
 
-		usedLayout = QVBoxLayout()
+		usedLayout = QtWidgets.QVBoxLayout()
 		self.setLayout(usedLayout)
 		textLocation = os.path.join(sys.path[0], 'about.html')
 		try:
@@ -27,21 +22,21 @@ class aboutTab(QWidget):
 				aboutText = f.read()
 		except FileNotFoundError:
 			aboutText = "No About.html file found"
-		aboutText = QLabel(aboutText)
+		aboutText = QtWidgets.QLabel(aboutText)
 		aboutText.setWordWrap(True)
 		usedLayout.addWidget(aboutText)
 		usedLayout.addStretch()
 
-class exceptionTab(QWidget):
+class exceptionTab(QtWidgets.QWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
 
-		self.usedLayout = QVBoxLayout()
+		self.usedLayout = QtWidgets.QVBoxLayout()
 		self.setLayout(self.usedLayout)
 
-		self.usedLayout.addWidget(QLabel("Last Exception simulation had will appear here"))
+		self.usedLayout.addWidget(QtWidgets.QLabel("Last Exception simulation had will appear here"))
 
-		self.exceptionText = QPlainTextEdit("None")
+		self.exceptionText = QtWidgets.QPlainTextEdit("None")
 		self.exceptionText.setReadOnly(True)
 		self.usedLayout.addWidget(self.exceptionText)
 		return
@@ -50,8 +45,8 @@ class exceptionTab(QWidget):
 		self.exceptionText.clear()
 		self.exceptionText.appendPlainText(newText)
 
-class baseInterface(QMainWindow):
-	updateVehiclePositionSignal = pyqtSignal(list)  # signal for redrawing the vehicle
+class baseInterface(QtWidgets.QMainWindow):
+	updateVehiclePositionSignal = QtCore.pyqtSignal(list)  # signal for redrawing the vehicle
 
 	def __init__(self, parent = None):
 		"""
@@ -80,19 +75,19 @@ class baseInterface(QMainWindow):
 		self.afterUpdateDefList = list()
 
 		# we need to start the thread now, it just runs
-		self.simulationTimedThread = QTimer()
+		self.simulationTimedThread = QtCore.QTimer()
 		self.simulationTimedThread.setInterval(simulationThreadRate)
 		self.simulationTimedThread.timeout.connect(self.runSimulation)
 
-		self.mainWidget = QWidget()
-		self.mainLayout = QVBoxLayout()
+		self.mainWidget = QtWidgets.QWidget()
+		self.mainLayout = QtWidgets.QVBoxLayout()
 		self.setCentralWidget(self.mainWidget)
 		self.mainWidget.setLayout(self.mainLayout)
 
-		self.mainSplitter = QSplitter(Qt.Horizontal)
+		self.mainSplitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 		self.mainLayout.addWidget(self.mainSplitter, 10)
 
-		self.vehicleDisplaySplitter = QSplitter(Qt.Vertical)
+		self.vehicleDisplaySplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
 		# self.vehicleDisplaySplitter.setFrameStyle(QFrame.Box)
 		self.mainSplitter.addWidget(self.vehicleDisplaySplitter)
 
@@ -100,23 +95,23 @@ class baseInterface(QMainWindow):
 		self.vehicleDisplaySplitter.addWidget(self.vehicleInstance)
 		self.stateUpdateDefList.append(self.vehicleInstance.updateVehiclePosition)
 
-		self.inputBaseWidget = QWidget()
+		self.inputBaseWidget = QtWidgets.QWidget()
 		self.vehicleDisplaySplitter.addWidget(self.inputBaseWidget)
 		self.vehicleDisplaySplitter.setStretchFactor(0, 1)
-		self.inputLayout = QVBoxLayout()
+		self.inputLayout = QtWidgets.QVBoxLayout()
 		self.inputBaseWidget.setLayout(self.inputLayout)
-		self.inputTabs = QTabWidget()
+		self.inputTabs = QtWidgets.QTabWidget()
 		self.inputLayout.addWidget(self.inputTabs)
 		# self.inputLayout.addWidget(QLabel("Input Here"))
 
-		self.outPutWidget = QWidget()
-		self.outPutLayout = QVBoxLayout()
+		self.outPutWidget = QtWidgets.QWidget()
+		self.outPutLayout = QtWidgets.QVBoxLayout()
 		self.outPutWidget.setLayout(self.outPutLayout)
 		self.mainSplitter.addWidget(self.outPutWidget)
 		self.mainSplitter.setStretchFactor(0, 4)
 		self.mainSplitter.setStretchFactor(1, 3)
 
-		self.outPutTabs = QTabWidget()
+		self.outPutTabs = QtWidgets.QTabWidget()
 		self.outPutTabs.addTab(aboutTab(), 'About')
 		self.exceptionTab = exceptionTab()
 		self.outPutTabs.addTab(self.exceptionTab, 'Last Exception')
@@ -124,28 +119,28 @@ class baseInterface(QMainWindow):
 
 		self.outPutLayout.addWidget(self.outPutTabs)
 
-		self.numericStateBox = QHBoxLayout()
+		self.numericStateBox = QtWidgets.QHBoxLayout()
 
 		self.outPutLayout.addLayout(self.numericStateBox)
 
-		self.numericStateGrid = QGridLayout()
+		self.numericStateGrid = QtWidgets.QGridLayout()
 		self.numericStateBox.addLayout(self.numericStateGrid)
 		self.numericStatesDict = dict()
 		for i, name in enumerate(['pn', 'pe', 'pd', 'yaw', 'pitch', 'roll']):
-			newLabel = QLabel("{}: ".format(name))
+			newLabel = QtWidgets.QLabel("{}: ".format(name))
 			self.numericStateGrid.addWidget(newLabel, 0, i)
 			self.numericStatesDict[name] = newLabel
 		self.stateUpdateDefList.append(self.updateNumericStateBox)
 
 		# self.numericStateBox.addStretch()
 
-		self.simulationControlsBox = QHBoxLayout()
+		self.simulationControlsBox = QtWidgets.QHBoxLayout()
 		self.mainLayout.addLayout(self.simulationControlsBox, 0)
-		self.simulationControlsBox.addWidget(QLabel("Simulation Controls")) # temp text for layout
+		self.simulationControlsBox.addWidget(QtWidgets.QLabel("Simulation Controls")) # temp text for layout
 
-		self.playButton = QPushButton("Play")
-		self.pauseButton = QPushButton("Pause")
-		self.resetButton = QPushButton("Reset")
+		self.playButton = QtWidgets.QPushButton("Play")
+		self.pauseButton = QtWidgets.QPushButton("Pause")
+		self.resetButton = QtWidgets.QPushButton("Reset")
 
 		self.simulationControlsBox.addWidget(self.playButton)
 		self.simulationControlsBox.addWidget(self.pauseButton)
@@ -157,13 +152,13 @@ class baseInterface(QMainWindow):
 
 		self.pauseButton.setDisabled(True)
 
-		self.simulationSpeedsBox = QHBoxLayout()
+		self.simulationSpeedsBox = QtWidgets.QHBoxLayout()
 		self.simulationControlsBox.addLayout(self.simulationSpeedsBox)
-		self.simulationSpeedsGroup = QButtonGroup()
+		self.simulationSpeedsGroup = QtWidgets.QButtonGroup()
 
 		for ratio in [20, 8, 4, 2, 1, 1/2, 1/4, 1/8]:
 			newRatio = 1/(simulationThreadRate/(simulationThreadRate/ratio))
-			newRadio = QRadioButton("{}x".format(newRatio))
+			newRadio = QtWidgets.QRadioButton("{}x".format(newRatio))
 			newRadio.threadRate = ratio
 			self.simulationSpeedsBox.addWidget(newRadio)
 			self.simulationSpeedsGroup.addButton(newRadio)
@@ -171,8 +166,8 @@ class baseInterface(QMainWindow):
 		self.simulationSpeedsGroup.buttonToggled.connect(self.speedChangedResponse)
 
 		self.currentTime = 0
-		self.simulationControlsBox.addWidget(QLabel("Current Time: "))
-		self.currentTimeLabel = QLabel(str(datetime.timedelta(seconds=self.currentTime)))
+		self.simulationControlsBox.addWidget(QtWidgets.QLabel("Current Time: "))
+		self.currentTimeLabel = QtWidgets.QLabel(str(datetime.timedelta(seconds=self.currentTime)))
 		self.simulationControlsBox.addWidget(self.currentTimeLabel)
 		self.simulationControlsBox.addStretch()
 
@@ -191,8 +186,7 @@ class baseInterface(QMainWindow):
 					self.runUpdate()
 					self.runUpdate()  # Only updating the screen at half of the integration rate
 			except Exception as e:
-				self.exceptionTab.setExceptionText(traceback.format_exc())
-				self.outPutTabs.setCurrentIndex(self.exceptionTabIndex)
+				self.raiseExceptionToUser(traceback.format_exc())
 				# traceback.print_exc()
 				self.PauseSimulation()
 			self.afterUpdateActions()
@@ -296,4 +290,10 @@ class baseInterface(QMainWindow):
 			if key in ['yaw', 'pitch', 'roll']:
 				newVal = math.degrees(newVal)
 			label.setText("{}: {:03.4}".format(key, newVal))
+		return
+
+	def raiseExceptionToUser(self, exceptionText):
+		self.exceptionTab.setExceptionText(exceptionText)
+		self.outPutTabs.setCurrentIndex(self.exceptionTabIndex)
+
 		return

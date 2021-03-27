@@ -2,9 +2,10 @@ from ..Utilities import Rotations
 from ..Utilities import MatrixMath
 import math
 
+testingAbs_tol = 1e-6
 
 class vehicleState:
-    def __init__(self, pn=0.0, pe=0.0, pd=0.0, u=0.0, v=0.0, w=0.0, yaw=0.0, pitch=0.0, roll=0.0, p=0.0, q=0.0, r=0.0):
+    def __init__(self, pn=0.0, pe=0.0, pd=0.0, u=0.0, v=0.0, w=0.0, yaw=0.0, pitch=0.0, roll=0.0, p=0.0, q=0.0, r=0.0, dcm=None):
         """
         Defines the vehicle states to define the vehicle current position and orientation. Positions are in NED
         coordinates, velocity is ground speed in body coordinates, we carry both the Euler angles and the DCM together,
@@ -32,37 +33,56 @@ class vehicleState:
         self.v = v
         self.w = w
         # Euler Angles
-        self.yaw = yaw
-        self.pitch = pitch
-        self.roll = roll
-        # Direction Cosine Matrix
-        self.R = Rotations.euler2DCM(yaw, pitch, roll) # R transforms from inertial to body
-                                                       # use transpose to go the other way
-                                                       # Euler angles and R are redundant
+        if dcm is None:
+            self.yaw = yaw
+            self.pitch = pitch
+            self.roll = roll
+            # Direction Cosine Matrix
+            self.R = Rotations.euler2DCM(yaw, pitch, roll) # R transforms from inertial to body
+                                                           # use transpose to go the other way
+                                                           # Euler angles and R are redundant
+        else:
+            self.R = dcm
+            self.yaw, self.pitch, self.roll = Rotations.dcm2Euler(self.R)
+
         # body rates
         self.p = p
         self.q = q
         self.r = r
-        # Airspeed and Flight Angles
+        # Airspeed and Flight Angles (assume wind is zero)
         self.Va = math.hypot(self.u, self.v, self.w)    # Airspeed
         self.alpha = math.atan2(self.w, self.u)         # angle of attack
-        self.beta = math.atan2(self.v, self.u)          # Sideslip Angle
-        pdotned = MatrixMath.matrixMultiply(MatrixMath.matrixTranspose(self.R),[[self.u],[self.v],[self.w]])
+        if math.isclose(self.Va, 0.0):                  # Sideslip Angle, no airspeed
+            self.beta = 0.0
+        else:
+            self.beta = math.asin(self.v/self.Va)       # Sideslip Angle, normal definition
+        pdotned = MatrixMath.multiply(MatrixMath.transpose(self.R),[[self.u],[self.v],[self.w]])
         self.chi = math.atan2(pdotned[1][0],pdotned[0][0])
         return
 
     def __repr__(self):
         return "{1.__name__}(pn={0.pn}, pe={0.pe}, pd={0.pd}, u={0.u}, v={0.v}, w={0.w}," \
-               " yaw={0.yaw}, pitch={0.pitch}, roll={0.roll}, p={0.p}, q={0.q}, r={0.r})".format(self, type(self))
+               " yaw={0.yaw}, pitch={0.pitch}, roll={0.roll}, p={0.p}, q={0.q}, r={0.r}, dcm={0.R})".format(self, type(self))
+
+    def __str__(self):
+        posvel = "(pn={}, pe={}, pd={})\n(u={}, v={}, w={})\n".format(self.pn, self.pe, self.pd, self.u, self.v, self.w)
+        eulrate = "(yaw={}, pitch={}, roll={})\n(p={}, q={}, r={})\n".format(math.degrees(self.yaw), math.degrees(self.pitch),
+                                                                             math.degrees(self.roll), math.degrees(self.p),
+                                                                             math.degrees(self.q), math.degrees(self.r))
+        Rdump = "R = [" + '\t'.join(['{: 7.14f}'.format(r) for r in self.R[0]]) + "]\n" + \
+                      '    [' + '\t'.join(['{: 7.14f}'.format(r) for r in self.R[1]]) + "]\n" + \
+                        '    [' + '\t'.join(['{: 7.14f}'.format(r) for r in self.R[2]]) + "]\n"
+        alphaChi = "(Va={}, alpha={}, beta={}, chi={})".format(self.Va, math.degrees(self.alpha), math.degrees(self.beta),
+                                                              math.degrees(self.chi))
+        return posvel + eulrate + Rdump + alphaChi
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
-            if not all([math.isclose(getattr(self, member), getattr(other, member)) for member in ['pn', 'pe', 'pd',
-                                                                                                   'u', 'v', 'w',
-                                                                                                   'p', 'q', 'r']]):
+            if not all([math.isclose(getattr(self, member), getattr(other, member),abs_tol=testingAbs_tol) for
+                        member in ['pn', 'pe', 'pd', 'u', 'v', 'w', 'p', 'q', 'r', 'yaw','pitch','roll']]):
                 return False
             for myRow, otherRow in zip(self.R, other.R):
-                if not all([math.isclose(x, y) for x, y in zip(myRow, otherRow)]):
+                if not all([math.isclose(x, y, abs_tol=testingAbs_tol) for x, y in zip(myRow, otherRow)]):
                     return False
             return True
         else:
@@ -96,7 +116,7 @@ class windState:
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
-            if not all([math.isclose(getattr(self, member), getattr(other, member)) for member in ['Wn', 'We', 'Wd',
+            if not all([math.isclose(getattr(self, member), getattr(other, member), abs_tol=testingAbs_tol) for member in ['Wn', 'We', 'Wd',
                                                                                                    'Wu', 'Wv', 'Ww']]):
                 return False
             else:

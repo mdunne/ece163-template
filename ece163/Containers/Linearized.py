@@ -10,6 +10,8 @@ elevator angle for trim.
 import math
 import ece163.Constants.VehiclePhysicalConstants as VPC
 
+testingAbs_tol = 1e-6
+
 class transferFunctions:
 	def __init__(self):
 		"""
@@ -43,7 +45,7 @@ class transferFunctions:
 	def __eq__(self, other):
 		if isinstance(other, type(self)):
 			if not all(
-					[math.isclose(getattr(self, member), getattr(other, member)) for member in ['Va_trim', 'alpha_trim', 'beta_trim',
+					[math.isclose(getattr(self, member), getattr(other, member), abs_tol=testingAbs_tol) for member in ['Va_trim', 'alpha_trim', 'beta_trim',
 																								'gamma_trim', 'theta_trim', 'phi_trim',
 																								'a_phi1', 'a_phi2', 'a_beta1', 'a_beta2',
 																								'a_theta1', 'a_theta2', 'a_theta3',

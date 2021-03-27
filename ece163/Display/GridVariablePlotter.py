@@ -3,12 +3,11 @@ This is a convenience module designed to make grids of variables using the :mod:
 module. Please refer to that module for specifics of arguments.
 """
 from . import variablePlotter
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+import PyQt5.QtCore as QtCore
+import PyQt5.QtWidgets as QtWidgets
 
 
-class GridVariablePlotter(QWidget):
+class GridVariablePlotter(QtWidgets.QWidget):
 	def __init__(self, numRows, numCols, plotNames, titles=list(), xLabels=list(), yLabels=list(), useLegends=list(), parent=None):
 		"""
 		Instantiates a new grid of variables suitable to be added to a gui.
@@ -24,7 +23,7 @@ class GridVariablePlotter(QWidget):
 		"""
 		super().__init__(parent)
 
-		self.usedLayout = QGridLayout()
+		self.usedLayout = QtWidgets.QGridLayout()
 		self.setLayout(self.usedLayout)
 
 		self.rows = numRows
@@ -97,15 +96,15 @@ class GridVariablePlotter(QWidget):
 		return
 
 
-if __name__ == "__main__":
+if QtCore.__name__ == "__main__":
 	import sys
 	import string
 	import random
-	class testDialog(QDialog):
+	class testDialog(QtWidgets.QDialog):
 		def __init__(self, rows, cols, parent=None):
 			super().__init__(parent)
 
-			self.usedLayout = QVBoxLayout()
+			self.usedLayout = QtWidgets.QVBoxLayout()
 			self.setLayout(self.usedLayout)
 
 			self.plotCount = rows*cols
@@ -136,19 +135,19 @@ if __name__ == "__main__":
 			# going to do so by adding two qtimers which add data
 
 			# first one updates all the plots
-			self.multiUpdate = QTimer()
+			self.multiUpdate = QtCore.QTimer()
 			self.multiUpdate.timeout.connect(self.updateAllPlots)
 			self.multiUpdate.setInterval(500)
 			self.multiUpdate.start()
 
 
 			# second one updates the first plot at a different rate
-			self.singleUpdate = QTimer()
+			self.singleUpdate = QtCore.QTimer()
 			self.singleUpdate.timeout.connect(self.updateFirstPlot)
 			self.singleUpdate.setInterval(400)
 			self.singleUpdate.start()
 
-			makeNewOne = QPushButton("Spawn more")
+			makeNewOne = QtWidgets.QPushButton("Spawn more")
 			makeNewOne.clicked.connect(self.addMore)
 			self.usedLayout.addWidget(makeNewOne)
 
@@ -187,7 +186,7 @@ if __name__ == "__main__":
 	sys.excepthook = my_exception_hook
 
 
-	qtApp = QApplication(sys.argv)
+	qtApp = QtWidgets.QApplication(sys.argv)
 
 	TwoByTwoGrid = testDialog(3, 4)
 	TwoByTwoGrid.show()

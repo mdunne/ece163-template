@@ -38,7 +38,7 @@ Jxz = 0.1204  # [kg m^2]
 
 Jbody = [[Jxx, 0., -Jxz], [0., Jyy, 0.], [-Jxz, 0., Jzz]]
 Jdet = (Jxx * Jzz - Jxz ** 2)
-JinvBody = MatrixMath.matrixScalarMultiply(1. / Jdet, [[Jzz, 0., Jxz], [0., Jdet / Jyy, 0.], [Jxz, 0., Jxx]])
+JinvBody = MatrixMath.scalarMultiply(1. / Jdet, [[Jzz, 0., Jxz], [0., Jdet / Jyy, 0.], [Jxz, 0., Jxx]])
 
 Gamma1 = (Jxx - Jyy + Jzz)* JinvBody[0][2]
 Gamma2 = (Jzz * (Jzz - Jyy) + Jxz ** 2) / Jdet
@@ -133,7 +133,7 @@ CrdeltaA = JinvBody[0][2] * CldeltaA + JinvBody[2][2] * CndeltaA
 CrdeltaR = JinvBody[0][2] * CldeltaR + JinvBody[2][2] * CndeltaR
 
 # rudder and aileron trim matrix
-CprdeltaARinv = MatrixMath.matrixScalarMultiply(1.0 / (CpdeltaA * CrdeltaR - CpdeltaR * CrdeltaA), [[CrdeltaR, -CpdeltaR],
+CprdeltaARinv = MatrixMath.scalarMultiply(1.0 / (CpdeltaA * CrdeltaR - CpdeltaR * CrdeltaA), [[CrdeltaR, -CpdeltaR],
 																									[-CrdeltaA, CpdeltaA]])
 
 # Dyden Wind Gust Model Coefficients
@@ -157,4 +157,4 @@ maxControls = Inputs.controlInputs(1.0, math.radians(25.0), math.radians(25.0), 
 bankAngleLimit = 60.0	# [deg] This is aggressive, 30-45 degrees is more usual
 courseAngleLimit = 45.0	# [deg] how much course change before saturating integrator
 pitchAngleLimit = 30.0	# [deg] This is aggressive, 15-20 degrees is more usual
-altitudeHoldZone = 10.0	# [m] the saturation zone when to switch modes on altitude hold
+altitudeHoldZone = 30.0	# [m] the saturation zone when to switch modes on altitude hold

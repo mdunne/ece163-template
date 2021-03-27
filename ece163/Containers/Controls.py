@@ -3,7 +3,21 @@ File contains the classes for controls primitives, gains, and tuning knobs for t
 """
 
 import math
+import enum
+
 from ..Constants import VehiclePhysicalConstants as VPC
+
+testingAbs_tol = 1e-4
+
+class AltitudeStates(enum.Enum):
+	"""
+	class AltitudeStates(enum.Enum):
+	Enumeration class for the altitude hold state machine. Defines three states that we will be using to reset the PI integrators
+	when switching between different altitudes.
+	"""
+	CLIMBING = enum.auto()
+	HOLDING = enum.auto()
+	DESCENDING = enum.auto()
 
 class referenceCommands():
 	def __init__(self, courseCommand=VPC.InitialYawAngle, altitudeCommand=-VPC.InitialDownPosition, airspeedCommand=VPC.InitialSpeed):
@@ -31,7 +45,7 @@ class referenceCommands():
 
 	def __eq__(self, other):
 		if isinstance(other, type(self)):
-			if not all([math.isclose(getattr(self, member), getattr(other, member)) for member in ['commandedCourse',
+			if not all([math.isclose(getattr(self, member), getattr(other, member), abs_tol=testingAbs_tol) for member in ['commandedCourse',
 																								   'commandedAltitude',
 																								   'commandedAirspeed',
 																								   'commandedRoll',
@@ -70,12 +84,25 @@ class controlGains():
 		self.ki_SpeedfromElevator = 0.0
 		return
 
+	def __eq__(self, other):
+		if isinstance(other, type(self)):
+			if not all([math.isclose(getattr(self, member), getattr(other, member), abs_tol=testingAbs_tol)
+						for member in ['kp_roll', 'kd_roll', 'ki_roll', 'kp_sideslip', 'ki_sideslip', 'kp_course',
+									   'ki_course', 'kp_pitch', 'kd_pitch', 'kp_altitude', 'ki_altitude',
+									   'kp_SpeedfromThrottle', 'ki_SpeedfromThrottle', 'kp_SpeedfromElevator',
+									   'ki_SpeedfromElevator']]):
+				return False
+			else:
+				return True
+		else:
+			return NotImplemented
+
 	def __str__(self):
-		return "{0.__name__}(kp_roll={1.kp_roll}, kd_roll={1.kd_roll}, ki_roll={1.ki_roll},\n kp_sideslip={1.kp_sideslip}, " \
-			   "ki_sideslip={1.ki_sideslip},\n kp_course={1.kp_course}, ki_course={1.ki_course},\n kp_pitch={1.kp_pitch}, " \
-			   "kd_pitch={1.kd_pitch},\n kp_altitude={1.kp_altitude}, ki_altitude={1.ki_altitude},\n kp_SpeedfromThrottle={1.kp_SpeedfromThrottle}, " \
-			   "ki_SpeedfromThrottle={1.ki_SpeedfromThrottle},\n kp_SpeedfromElevator={1.kp_SpeedfromElevator}, " \
-			   "ki_SpeedfromElevator{1.ki_SpeedfromElevator})".format(type(self), self)
+		return "{0.__name__}(kp_roll={1.kp_roll}, kd_roll={1.kd_roll}, ki_roll={1.ki_roll}, kp_sideslip={1.kp_sideslip}, " \
+			   "ki_sideslip={1.ki_sideslip}, kp_course={1.kp_course}, ki_course={1.ki_course}, kp_pitch={1.kp_pitch}, " \
+			   "kd_pitch={1.kd_pitch}, kp_altitude={1.kp_altitude}, ki_altitude={1.ki_altitude}, kp_SpeedfromThrottle={1.kp_SpeedfromThrottle}, " \
+			   "ki_SpeedfromThrottle={1.ki_SpeedfromThrottle}, kp_SpeedfromElevator={1.kp_SpeedfromElevator}, " \
+			   "ki_SpeedfromElevator={1.ki_SpeedfromElevator})".format(type(self), self)
 
 
 class controlTuning():
@@ -106,4 +133,23 @@ class controlTuning():
 		self.Zeta_SpeedfromElevator = 0.0
 		return
 
+	def __str__(self):
+		return "{0.__name__}(Wn_roll={1.Wn_roll}, Zeta_roll={1.Zeta_roll}, Wn_course={1.Wn_course}, Zeta_course={1.Zeta_course}, " \
+			   "Wn_sideslip={1.Wn_sideslip}, Zeta_sideslip={1.Zeta_sideslip}, Wn_pitch={1.Wn_pitch}, Zeta_pitch={1.Zeta_pitch}, " \
+			   "Wn_altitude={1.Wn_altitude}, Zeta_altitude={1.Zeta_altitude}, Wn_SpeedfromThrottle={1.Wn_SpeedfromThrottle}, " \
+			   "Zeta_SpeedfromThrottle={1.Zeta_SpeedfromThrottle}, Wn_SpeedfromElevator={1.Wn_SpeedfromElevator}, " \
+			   "Zeta_SpeedfromElevator={1.Zeta_SpeedfromElevator})".format(type(self), self)
 
+
+
+	def __eq__(self, other):
+		if isinstance(other, type(self)):
+			if not all([math.isclose(getattr(self, member), getattr(other, member), abs_tol=testingAbs_tol)
+						for member in ['Wn_roll', 'Zeta_roll', 'Wn_course', 'Zeta_course', 'Wn_sideslip', 'Zeta_sideslip',
+									   'Wn_pitch', 'Zeta_pitch', 'Wn_altitude', 'Zeta_altitude', 'Wn_SpeedfromThrottle',
+									   'Zeta_SpeedfromThrottle', 'Wn_SpeedfromElevator', 'Zeta_SpeedfromElevator']]):
+				return False
+			else:
+				return True
+		else:
+			return NotImplemented

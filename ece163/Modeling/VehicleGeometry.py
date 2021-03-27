@@ -1,7 +1,12 @@
-from ..Utilities import MatrixMath
+"""
+Holds the vehicle graphics, only operation on it is to return a set of points and meshes with the appropriate rotation/translation
+currently just returns the modified points, does not update the base ones. Module uses its baseUnit variable to scale the model to an
+arbitrary size for good rendering in the display window.
+"""
+
+from ..Utilities import MatrixMath as mm
 from ..Utilities import Rotations
 from ..Constants import VehiclePhysicalConstants as VPC
-
 
 baseUnit = 1.0
 
@@ -126,5 +131,8 @@ class VehicleGeometry():
 		:param roll: rotation about body x-axis [rad]
 		:return: Points in inertial EAST-NORTH-UP frame (for plotting)
 		"""
-		# Student code goes here
+		newPoints = self.vertices
+		
+		#student code goes here
+
 		return newPoints
